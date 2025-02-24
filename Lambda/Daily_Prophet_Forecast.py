@@ -25,6 +25,7 @@ def lambda_handler(event, context):
     df = df[-1582:]  # Keep the last 1582 records for modeling
 
     # Box-Cox Transformation on non-outlier and non-missing data to stabilize variance
+    orig_df = df.copy() # save original df for later plots
     no_out_missing = df[(df['Outlier'] == False) & (df['y'].notnull())]
     no_out_missing['y'], lam = stats.boxcox(no_out_missing['y'])
     df.loc[no_out_missing.index, 'y'] = no_out_missing['y']
@@ -103,8 +104,8 @@ def lambda_handler(event, context):
 
     # Plotting actual data and forecasts using Plotly
     actual_trace = go.Scatter(
-        x=df['ds'],
-        y=df['y'],
+        x=orig_df['ds'],
+        y=orig_df['y'],
         mode='lines+markers',
         name='Actual Revenue Losses'
     )
