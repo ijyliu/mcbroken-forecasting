@@ -12,7 +12,7 @@ from io import BytesIO
 
 # Set up S3 client and specify bucket and key
 s3 = boto3.client('s3')
-bucket = 'mcbroken-daily'  # S3 bucket name
+bucket = 'mcbroken-bucket'  # S3 bucket name
 key = 'Clean_McBroken_Daily.xlsx'  # File name in S3
 
 def lambda_handler(event, context):

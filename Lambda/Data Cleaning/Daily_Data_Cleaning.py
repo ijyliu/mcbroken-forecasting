@@ -49,10 +49,10 @@ def lambda_handler(event, context):
     df.loc[df['Date'] == '2021-10-06', 'Outlier'] = True
     
     # Save to S3 as Excel file
-    bucket = 'mcbroken-daily'
+    bucket = 'mcbroken-bucket'
     key = 'Clean_McBroken_Daily.xlsx'
     excel_buffer = io.BytesIO()
-    with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(excel_buffer) as writer:
         df.to_excel(writer, index=False)
     excel_buffer.seek(0)
     

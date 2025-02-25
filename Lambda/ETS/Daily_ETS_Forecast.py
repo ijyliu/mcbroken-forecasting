@@ -11,7 +11,7 @@ from io import BytesIO
 def lambda_handler(event, context):
     # S3 details
     s3 = boto3.client('s3')
-    bucket = 'mcbroken-daily'  # S3 bucket name
+    bucket = 'mcbroken-bucket'  # S3 bucket name
     key = 'Clean_McBroken_Daily.xlsx'  # File name in S3
 
     # Load data from S3
