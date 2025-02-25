@@ -122,29 +122,72 @@ def lambda_handler(event, context):
     df['Revenue Losses'] = inv_boxcox(df['Revenue Losses'], lam)
 
     # Plotting actual data and forecasts using Plotly
+    orig_df = orig_df.tail(90) # Data range limitation
     actual_trace = go.Scatter(
         x=orig_df['Date'],
         y=orig_df['Revenue Losses'],
         mode='lines+markers',
-        name='Actual Revenue Losses'
+        name='Actual Revenue Losses',        
+        hoverinfo='text',
+        hovertext=[f"{date.strftime('%a, %b %d, %Y')}<br>Actual Revenue Losses<br>${revenue:,.0f}" for date, revenue in zip(orig_df['Date'], orig_df['Revenue Losses'])],
+        # original data muted blue: #1f77b4
+        line=dict(color='#1f77b4'), 
+        legendrank=1
     )
     forecast_trace = go.Scatter(
         x=forecast_df['Date'],
         y=forecast_df['yhat'],
         mode='lines+markers',
-        name='Forecast'
+        name='Forecast',
+        hovertext=[f"{date.strftime('%a, %b %d, %Y')}<br>Forecast<br>${revenue:,.0f}" for date, revenue in zip(forecast_df['Date'], forecast_df['yhat'])],
+        # ets cooked asparagus green: #2ca02c
+        line=dict(dash='solid', color='#2ca02c'),
+        legendrank=2
     )
     interval_trace = go.Scatter(
         x=forecast_df['Date'].tolist() + forecast_df['Date'][::-1].tolist(),
         y=forecast_df['yhat_upper'].tolist() + forecast_df['yhat_lower'][::-1].tolist(),
         fill='toself',
-        fillcolor='rgba(0, 100, 80, 0.2)',
-        line=dict(color='rgba(255,255,255,0)'),
-        name='95% Prediction Interval'
+        # fill of #BCF6BC
+        fillcolor='#BCF6BC',
+        # ets cooked asparagus green: #2ca02c
+        line=dict(color='#2ca02c'),
+        name='95% Prediction Interval',
+        hoverinfo='skip',
+        legendrank=3
     )
     
+    # Create the figure
     fig = go.Figure(data=[actual_trace, interval_trace, forecast_trace])
-    fig.update_layout(title='Revenue Losses and Forecast', template='none')
+
+    # Update layout for elegance
+    fig.update_layout(
+        title='Revenue Losses and Exponential Smoothing Forecast',
+        template='none',
+        hovermode='x unified',
+        legend=dict(
+            orientation='h',  # Horizontal
+            x=0.5,            # Centered
+            xanchor='center', # Centered
+            y=-0.2,           # Below the plot area
+            yanchor='top',
+            traceorder='normal'
+        ),
+    )
+
+    # Update y-axis for custom scaling
+    fig.update_yaxes(
+        tickprefix="$",
+        tickformat=".2s",  # Use "M" for millions and "K" for thousands
+        tickfont=dict(size=12)
+    )
+
+    # Update x-axis for date format without day of the week
+    fig.update_xaxes(
+        tickformat="%b %d, %Y",  # Month, day, and year (no day of the week)
+        tickmode='auto',
+        tickfont=dict(size=12)
+    )
 
     # Save plot as HTML to temporary Lambda storage
     html_output = '/tmp/Daily_ETS_Forecast.html'
