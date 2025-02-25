@@ -1,5 +1,3 @@
-
-import boto3
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
@@ -9,7 +7,8 @@ import plotly.graph_objs as go
 from sklearn.utils import resample
 from io import BytesIO
 
-def lambda_handler(event, context):
+def load_data_aws():
+
     # S3 details
     s3 = boto3.client('s3')
     bucket = 'mcbroken-bucket'  # S3 bucket name
@@ -18,6 +17,38 @@ def lambda_handler(event, context):
     # Load data from S3
     obj = s3.get_object(Bucket=bucket, Key=key)
     df = pd.read_excel(BytesIO(obj['Body'].read()))
+
+    return df
+
+def save_output_aws(client, bucket, fig):
+
+    # Save plot as HTML to temporary Lambda storage
+    html_output = '/tmp/Daily_ETS_Forecast.html'
+    with open(html_output, 'w') as f:
+        f.write(fig.to_html(full_html=True))
+
+    # Upload HTML to S3 and make it publicly accessible
+    client.upload_file(html_output, bucket, 'Daily_ETS_Forecast.html', ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
+
+    # Return the S3 link to the uploaded forecast
+    return {
+        'statusCode': 200,
+        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/Daily_ETS_Forecast.html"
+    }
+
+def load_data_local():
+
+    # Load data from "../../Experimental Notebooks/Data/Clean_McBroken_Daily.xlsx"
+    df = pd.read_excel("../../Experimental Notebooks/Data/Clean_McBroken_Daily.xlsx")
+
+    return df
+
+def save_output_local(fig):
+
+    # Save plot as HTML to "../Testing/Daily_ETS_Forecast.html"
+    fig.write_html("../Testing/Daily_ETS_Forecast.html")
+
+def ets_forecast(df):
 
     # Sort and limit to past year
     df = df.sort_values('Date', ascending=True).reset_index(drop=True)
@@ -144,14 +175,15 @@ def lambda_handler(event, context):
         line=dict(dash='solid', color='#2ca02c'),
         legendrank=2
     )
+    # Compute trace color
+    # Take standard color for forecast, edit alpha channel
+    interval_color = 'rgba' + str(tuple(int(forecast_trace['line']['color'].lstrip('#')[i:i+2], 16) for i in (0, 2, 4)) + (0.2,))
     interval_trace = go.Scatter(
         x=forecast_df['Date'].tolist() + forecast_df['Date'][::-1].tolist(),
         y=forecast_df['yhat_upper'].tolist() + forecast_df['yhat_lower'][::-1].tolist(),
         fill='toself',
-        # fill of #BCF6BC
-        fillcolor='#BCF6BC',
-        # ets cooked asparagus green: #2ca02c
-        line=dict(color='#2ca02c'),
+        fillcolor=interval_color,
+        line=dict(color=interval_color),
         name='95% Prediction Interval',
         hoverinfo='skip',
         legendrank=3
@@ -189,17 +221,28 @@ def lambda_handler(event, context):
         tickfont=dict(size=12)
     )
 
-    # Save plot as HTML to temporary Lambda storage
-    html_output = '/tmp/Daily_ETS_Forecast.html'
-    with open(html_output, 'w') as f:
-        f.write(fig.to_html(full_html=True))
+    # Return figure
+    return fig
 
-    # Upload HTML to S3 and make it publicly accessible
-    s3.upload_file(html_output, bucket, 'Daily_ETS_Forecast.html', ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
+# Function for AWS runs
+def aws_run():
 
-    # Return the S3 link to the uploaded forecast
-    return {
-        'statusCode': 200,
-        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/Daily_ETS_Forecast.html"
-    }
+    # Import necessary libraries
+    import boto3
+    
+    # Load data from S3
+    df = load_data_aws()
 
+    # Generate forecast
+    fig = ets_forecast(df)
+
+    # Save output to S3
+    client = boto3.client('s3')
+    bucket = 'mcbroken-bucket'  # S3 bucket name
+    return save_output_aws(client, bucket, fig)
+
+# Use name and main for local runs
+if __name__ == '__main__':
+    df = load_data_local()
+    fig = ets_forecast(df)
+    save_output_local(fig)
