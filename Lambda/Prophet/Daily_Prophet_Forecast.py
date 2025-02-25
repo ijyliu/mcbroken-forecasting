@@ -21,7 +21,7 @@ def lambda_handler(event, context):
     df = pd.read_excel(BytesIO(obj['Body'].read()))
 
     # Data preprocessing: Selecting relevant columns and renaming them for Prophet
-    df = df[['Date', 'Revenue Losses', 'Train', 'Outlier']].rename(columns={'Revenue Losses': 'y', 'Date': 'ds'})
+    df = df[['Date', 'Revenue Losses', 'Outlier']].rename(columns={'Revenue Losses': 'y', 'Date': 'ds'})
     df = df.sort_values('ds').reset_index(drop=True)
     df = df[-1582:]  # Keep the last 1582 records for modeling
 

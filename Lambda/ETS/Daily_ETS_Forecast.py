@@ -6,6 +6,7 @@ import scipy.stats as stats
 from scipy.special import inv_boxcox
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 import plotly.graph_objs as go
+from sklearn.utils import resample
 from io import BytesIO
 
 def lambda_handler(event, context):
