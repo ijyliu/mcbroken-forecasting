@@ -1,10 +1,11 @@
 # Import necessary libraries
 import pandas as pd
+import numpy as np
 import scipy.stats as stats
 from scipy.special import inv_boxcox
 from prophet import Prophet
 import optuna
-from sklearn.metrics import root_mean_squared_error
+#from sklearn.metrics import root_mean_squared_error
 import plotly.graph_objs as go
 import boto3
 from io import BytesIO
@@ -61,7 +62,8 @@ def lambda_handler(event, context):
         forecast = m.predict(obj_df_val)
 
         # Calculate RMSE as the optimization objective
-        rmse = root_mean_squared_error(obj_df_val['y'], forecast['yhat'], squared=False)
+        rmse = np.sqrt(np.nanmean((obj_df_val['y'] - forecast['yhat']) ** 2))
+
         return rmse
 
     # Hyperparameter tuning using Optuna
