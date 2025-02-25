@@ -2,12 +2,11 @@
 FROM public.ecr.aws/lambda/python:3.12
 
 # Copy function code and requirements.txt
-COPY Daily_Prophet_Forecast.py .
-COPY requirements.txt .
+COPY * .
 
 # Install dependencies
 RUN python3.12 -m pip install --upgrade pip && \
     python3.12 -m pip install -r requirements.txt
 
 # Set the handler
-CMD ["Daily_Prophet_Forecast.lambda_handler"]
+CMD ["Prophet_Lambda.lambda_handler"]

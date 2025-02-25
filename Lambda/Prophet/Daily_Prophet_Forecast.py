@@ -10,16 +10,43 @@ import plotly.graph_objs as go
 import boto3
 from io import BytesIO
 
-# Set up S3 client and specify bucket and key
-s3 = boto3.client('s3')
-bucket = 'mcbroken-bucket'  # S3 bucket name
-key = 'Clean_McBroken_Daily.xlsx'  # File name in S3
+def load_data_aws():
+    # S3 details
+    s3 = boto3.client('s3')
+    bucket = 'mcbroken-bucket'  # S3 bucket name
+    key = 'Clean_McBroken_Daily.xlsx'  # File name in S3
 
-def lambda_handler(event, context):
     # Load data from S3
     obj = s3.get_object(Bucket=bucket, Key=key)
     df = pd.read_excel(BytesIO(obj['Body'].read()))
 
+    return df
+
+def save_output_aws(client, bucket, fig):
+    # Save plot as HTML to temporary Lambda storage
+    html_output = '/tmp/Daily_Prophet_Forecast.html'
+    with open(html_output, 'w') as f:
+        f.write(fig.to_html(full_html=True))
+
+    # Upload HTML to S3 and make it publicly accessible
+    client.upload_file(html_output, bucket, 'Daily_Prophet_Forecast.html', ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
+
+    # Return the S3 link to the uploaded forecast
+    return {
+        'statusCode': 200,
+        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/Daily_Prophet_Forecast.html"
+    }
+
+def load_data_local():
+    # Load data from "../../Experimental Notebooks/Data/Clean_McBroken_Daily.xlsx"
+    df = pd.read_excel("../../Experimental Notebooks/Data/Clean_McBroken_Daily.xlsx")
+    return df
+
+def save_output_local(fig):
+    # Save plot as HTML to "../Testing/Daily_Prophet_Forecast.html"
+    fig.write_html("../Testing/Daily_Prophet_Forecast.html")
+
+def prophet_forecast(df):
     # Data preprocessing: Selecting relevant columns and renaming them for Prophet
     df = df[['Date', 'Revenue Losses', 'Outlier']].rename(columns={'Revenue Losses': 'y', 'Date': 'ds'})
     df = df.sort_values('ds').reset_index(drop=True)
@@ -133,17 +160,31 @@ def lambda_handler(event, context):
         title='Revenue Losses and Forecast',
         template='none'
     )
+    
+    return fig
 
-    # Save plot as HTML and upload to S3 for sharing
-    html_output = 'Daily_Prophet_Forecast.html'
-    with open('/tmp/' + html_output, 'w') as f:
-        f.write(fig.to_html(full_html=True))
+# Function for AWS runs
+def aws_run():
+    # Import necessary libraries
+    import boto3
+    
+    # Load data from S3
+    df = load_data_aws()
 
-    # Upload HTML to S3 and make it publicly accessible
-    s3.upload_file('/tmp/' + html_output, bucket, html_output, ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
+    # Generate forecast
+    fig = prophet_forecast(df)
 
-    # Return the S3 link to the uploaded forecast
-    return {
-        'statusCode': 200,
-        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/{html_output}"
-    }
+    # Save output to S3
+    client = boto3.client('s3')
+    bucket = 'mcbroken-bucket'  # S3 bucket name
+    return save_output_aws(client, bucket, fig)
+
+def lambda_handler(event, context):
+    # Run forecast function
+    return aws_run()
+
+# Use name and main for local runs
+if __name__ == '__main__':
+    df = load_data_local()
+    fig = prophet_forecast(df)
+    save_output_local(fig)

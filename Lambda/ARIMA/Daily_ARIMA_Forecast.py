@@ -7,7 +7,7 @@ from pmdarima import auto_arima
 import plotly.graph_objs as go
 from io import BytesIO
 
-def lambda_handler(event, context):
+def load_data_aws():
     # S3 details
     s3 = boto3.client('s3')
     bucket = 'mcbroken-bucket'  # S3 bucket name
@@ -17,6 +17,33 @@ def lambda_handler(event, context):
     obj = s3.get_object(Bucket=bucket, Key=key)
     df = pd.read_excel(BytesIO(obj['Body'].read()))
 
+    return df
+
+def save_output_aws(client, bucket, fig):
+    # Save plot as HTML to temporary Lambda storage
+    html_output = '/tmp/Daily_ARIMA_Forecast.html'
+    with open(html_output, 'w') as f:
+        f.write(fig.to_html(full_html=True))
+
+    # Upload HTML to S3 and make it publicly accessible
+    client.upload_file(html_output, bucket, 'Daily_ARIMA_Forecast.html', ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
+
+    # Return the S3 link to the uploaded forecast
+    return {
+        'statusCode': 200,
+        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/Daily_ARIMA_Forecast.html"
+    }
+
+def load_data_local():
+    # Load data from "../../Experimental Notebooks/Data/Clean_McBroken_Daily.xlsx"
+    df = pd.read_excel("../../Experimental Notebooks/Data/Clean_McBroken_Daily.xlsx")
+    return df
+
+def save_output_local(fig):
+    # Save plot as HTML to "../Testing/Daily_ARIMA_Forecast.html"
+    fig.write_html("../Testing/Daily_ARIMA_Forecast.html")
+
+def arima_forecast(df):
     # Sort and limit to past year
     df = df.sort_values('Date', ascending=True).reset_index(drop=True)
     df = df.iloc[-365:].reset_index(drop=True)
@@ -101,17 +128,31 @@ def lambda_handler(event, context):
     
     fig = go.Figure(data=[actual_trace, interval_trace, forecast_trace])
     fig.update_layout(title='Revenue Losses and Forecast', template='none')
+    
+    return fig
 
-    # Save plot as HTML to temporary Lambda storage
-    html_output = '/tmp/Daily_ARIMA_Forecast.html'
-    with open(html_output, 'w') as f:
-        f.write(fig.to_html(full_html=True))
+# Function for AWS runs
+def aws_run():
+    # Import necessary libraries
+    import boto3
+    
+    # Load data from S3
+    df = load_data_aws()
 
-    # Upload HTML to S3 and make it publicly accessible
-    s3.upload_file(html_output, bucket, 'Daily_ARIMA_Forecast.html', ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
+    # Generate forecast
+    fig = arima_forecast(df)
 
-    # Return the S3 link to the uploaded forecast
-    return {
-        'statusCode': 200,
-        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/Daily_ARIMA_Forecast.html"
-    }
+    # Save output to S3
+    client = boto3.client('s3')
+    bucket = 'mcbroken-bucket'  # S3 bucket name
+    return save_output_aws(client, bucket, fig)
+
+def lambda_handler(event, context):
+    # Run forecast function
+    return aws_run()
+
+# Use name and main for local runs
+if __name__ == '__main__':
+    df = load_data_local()
+    fig = arima_forecast(df)
+    save_output_local(fig)
