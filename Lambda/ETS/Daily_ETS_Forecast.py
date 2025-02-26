@@ -160,7 +160,7 @@ def ets_forecast(df):
         mode='lines+markers',
         name='Actual Revenue Losses',        
         hoverinfo='text',
-        hovertext=[f"{date.strftime('%a, %b %d, %Y')}<br>Actual Revenue Losses<br>${revenue:,.0f}" for date, revenue in zip(orig_df['Date'], orig_df['Revenue Losses'])],
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Actual Revenue Losses   <br>   ${revenue:,.0f}   " for date, revenue in zip(orig_df['Date'], orig_df['Revenue Losses'])],
         # original data muted blue: #1f77b4
         line=dict(color='#1f77b4'), 
         legendrank=1
@@ -170,7 +170,8 @@ def ets_forecast(df):
         y=forecast_df['yhat'],
         mode='lines+markers',
         name='Forecast',
-        hovertext=[f"{date.strftime('%a, %b %d, %Y')}<br>Forecast<br>${revenue:,.0f}" for date, revenue in zip(forecast_df['Date'], forecast_df['yhat'])],
+        hoverinfo='text',
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Forecast   <br>   ${revenue:,.0f}   " for date, revenue in zip(forecast_df['Date'], forecast_df['yhat'])],
         # ets cooked asparagus green: #2ca02c
         line=dict(dash='solid', color='#2ca02c'),
         legendrank=2
@@ -196,7 +197,7 @@ def ets_forecast(df):
     fig.update_layout(
         title='Revenue Losses and Exponential Smoothing Forecast',
         template='none',
-        hovermode='x unified',
+        #hovermode='x unified',
         legend=dict(
             orientation='h',  # Horizontal
             x=0.5,            # Centered
@@ -204,6 +205,13 @@ def ets_forecast(df):
             y=-0.2,           # Below the plot area
             yanchor='top',
             traceorder='normal'
+        ),
+        # Add hoverlabel styling for white background with centered black text
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=12,
+            font_color="black",
+            align="auto"
         ),
     )
 
