@@ -6,7 +6,7 @@ Isaac Liu
 
 ![1740541243644](image/README/1740541243644.png)
 
-This project implements and compares three different time series forecasting methods to predict revenue losses from McDonald's ice cream machine outages. Using data from [mcbroken.com](https://mcbroken.com/) gathered, scraped, and processed each day (if you'd like some easy-to-work-with historical data, see my repo [here](https://github.com/ijyliu/mcbroken-daily-historical)), these models predict future outages and associated revenue impacts, estimated at $625 per machine-day of downtime. Live daily forecasts are hosted on my [Google Sites page](https://sites.google.com/view/isaac-liu/demos/live-mcbroken-forecasts) along with detailed methodology writeups and insights from historical test-set analysis.
+This project implements and compares three different time series forecasting methods to predict revenue losses from McDonald's ice cream machine outages. Using data from [mcbroken.com](https://mcbroken.com/) gathered, scraped, and processed at 12PM PST each day (if you'd like some easy-to-work-with historical data, see my repo [here](https://github.com/ijyliu/mcbroken-daily-historical)), these models predict future outages and associated revenue impacts, estimated at $625 per machine-day of downtime. Live daily forecasts are hosted on my [Google Sites page](https://sites.google.com/view/isaac-liu/demos/live-mcbroken-forecasts) along with detailed methodology writeups and insights from historical test-set analysis.
 
 The forecasting models include:
 
