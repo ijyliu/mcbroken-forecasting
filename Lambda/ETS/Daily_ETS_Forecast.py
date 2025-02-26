@@ -158,9 +158,9 @@ def ets_forecast(df):
         x=orig_df['Date'],
         y=orig_df['Revenue Losses'],
         mode='lines+markers',
-        name='Actual Revenue Losses',        
+        name='Actual Losses',        
         hoverinfo='text',
-        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Actual Revenue Losses   <br>   ${revenue:,.0f}   " for date, revenue in zip(orig_df['Date'], orig_df['Revenue Losses'])],
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Actual Losses   <br>   ${revenue:,.0f}   " for date, revenue in zip(orig_df['Date'], orig_df['Revenue Losses'])],
         # original data muted blue: #1f77b4
         line=dict(color='#1f77b4'), 
         legendrank=1
@@ -169,9 +169,9 @@ def ets_forecast(df):
         x=forecast_df['Date'],
         y=forecast_df['yhat'],
         mode='lines+markers',
-        name='Forecast',
+        name='Exponential Smoothing Forecast',
         hoverinfo='text',
-        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Forecast   <br>   ${revenue:,.0f}   " for date, revenue in zip(forecast_df['Date'], forecast_df['yhat'])],
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Exponential Smoothing Forecast   <br>   ${revenue:,.0f}   " for date, revenue in zip(forecast_df['Date'], forecast_df['yhat'])],
         # ets cooked asparagus green: #2ca02c
         line=dict(dash='solid', color='#2ca02c'),
         legendrank=2
@@ -195,7 +195,7 @@ def ets_forecast(df):
 
     # Update layout for elegance
     fig.update_layout(
-        title='Revenue Losses and Exponential Smoothing Forecast',
+        title='Revenue Losses from Broken McDonald\'s Ice Cream Machines ($625 per machine‑day)',
         template='none',
         #hovermode='x unified',
         legend=dict(

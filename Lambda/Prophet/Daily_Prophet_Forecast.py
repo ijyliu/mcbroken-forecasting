@@ -182,9 +182,9 @@ def prophet_forecast(df):
         x=orig_df['ds'],
         y=orig_df['y'],
         mode='lines+markers',
-        name='Actual Revenue Losses',
+        name='Actual Losses',
         hoverinfo='text',
-        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Actual Revenue Losses   <br>   ${revenue:,.0f}   " for date, revenue in zip(orig_df['ds'], orig_df['y'])],
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Actual Losses   <br>   ${revenue:,.0f}   " for date, revenue in zip(orig_df['ds'], orig_df['y'])],
         # original data muted blue: #1f77b4
         line=dict(color='#1f77b4'), 
         legendrank=1
@@ -194,9 +194,9 @@ def prophet_forecast(df):
         x=forecast['Date'],
         y=forecast['yhat'],
         mode='lines+markers',
-        name='Forecast',
+        name='Prophet Forecast',
         hoverinfo='text',
-        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Forecast   <br>   ${revenue:,.0f}   " for date, revenue in zip(forecast['Date'], forecast['yhat'])],
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Prophet Forecast   <br>   ${revenue:,.0f}   " for date, revenue in zip(forecast['Date'], forecast['yhat'])],
         # prophet red: #d62728
         line=dict(dash='solid', color='#d62728'),
         legendrank=2
@@ -220,7 +220,7 @@ def prophet_forecast(df):
     
     # Update layout for elegance
     fig.update_layout(
-        title='Revenue Losses and Prophet Forecast',
+        title='Revenue Losses from Broken McDonald\'s Ice Cream Machines ($625 per machine‑day)',
         template='none',
         #hovermode='x unified',
         legend=dict(

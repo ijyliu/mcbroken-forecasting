@@ -117,9 +117,9 @@ def arima_forecast(df):
     print(f"Forecast generation completed in: {(forecast_time - model_time)/60:.2f} minutes")
     
     # Store forecast and confidence intervals
-    forecast_df['yhat'] = forecast_values
-    forecast_df['yhat_lower'] = conf_int[:, 0]
-    forecast_df['yhat_upper'] = conf_int[:, 1]
+    forecast_df['yhat'] = list(forecast_values)
+    forecast_df['yhat_lower'] = list(conf_int[:, 0])
+    forecast_df['yhat_upper'] = list(conf_int[:, 1])
 
     # Undo Box-Cox transformation
     forecast_df['yhat'] = inv_boxcox(forecast_df['yhat'], lam)
@@ -143,9 +143,9 @@ def arima_forecast(df):
         x=orig_df['Date'],
         y=orig_df['Revenue Losses'],
         mode='lines+markers',
-        name='Actual Revenue Losses',
+        name='Actual Losses',
         hoverinfo='text',
-        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Actual Revenue Losses   <br>   ${revenue:,.0f}   " for date, revenue in zip(orig_df['Date'], orig_df['Revenue Losses'])],
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Actual Losses   <br>   ${revenue:,.0f}   " for date, revenue in zip(orig_df['Date'], orig_df['Revenue Losses'])],
         # original data muted blue: #1f77b4
         line=dict(color='#1f77b4'), 
         legendrank=1
@@ -155,9 +155,9 @@ def arima_forecast(df):
         x=forecast_df['Date'],
         y=forecast_df['yhat'],
         mode='lines+markers',
-        name='Forecast',
+        name='ARIMA Forecast',
         hoverinfo='text',
-        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   Forecast   <br>   ${revenue:,.0f}   " for date, revenue in zip(forecast_df['Date'], forecast_df['yhat'])],
+        hovertext=[f"   {date.strftime('%a, %b %d, %Y')}   <br>   ARIMA Forecast   <br>   ${revenue:,.0f}   " for date, revenue in zip(forecast_df['Date'], forecast_df['yhat'])],
         # arima muted orange: #ff7f0e
         line=dict(dash='solid', color='#ff7f0e'),
         legendrank=2
@@ -181,7 +181,7 @@ def arima_forecast(df):
     
     # Update layout for elegance
     fig.update_layout(
-        title='Revenue Losses and ARIMA Forecast',
+        title='Revenue Losses from Broken McDonald\'s Ice Cream Machines ($625 per machine‑day)',
         template='none',
         #hovermode='x unified',
         legend=dict(
