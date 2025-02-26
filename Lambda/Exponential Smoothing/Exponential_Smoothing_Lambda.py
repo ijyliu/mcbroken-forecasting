@@ -1,5 +1,5 @@
 
-from Daily_ETS_Forecast import *
+from Daily_Exponential_Smoothing_Forecast import *
 
 def lambda_handler(event, context):
     

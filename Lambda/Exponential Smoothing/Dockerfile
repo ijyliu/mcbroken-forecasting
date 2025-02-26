@@ -9,4 +9,4 @@ RUN python3.12 -m pip install --upgrade pip && \
     python3.12 -m pip install -r requirements.txt
 
 # Set the handler
-CMD ["ETS_Lambda.lambda_handler"]
+CMD ["Exponential_Smoothing_Lambda.lambda_handler"]

@@ -23,17 +23,17 @@ def load_data_aws():
 def save_output_aws(client, bucket, fig):
 
     # Save plot as HTML to temporary Lambda storage
-    html_output = '/tmp/Daily_ETS_Forecast.html'
+    html_output = '/tmp/Daily_Exponential_Smoothing_Forecast.html'
     with open(html_output, 'w') as f:
         f.write(fig.to_html(full_html=True))
 
     # Upload HTML to S3 and make it publicly accessible
-    client.upload_file(html_output, bucket, 'Daily_ETS_Forecast.html', ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
+    client.upload_file(html_output, bucket, 'Daily_Exponential_Smoothing_Forecast.html', ExtraArgs={'ContentType': 'text/html', 'ACL': 'public-read'})
 
     # Return the S3 link to the uploaded forecast
     return {
         'statusCode': 200,
-        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/Daily_ETS_Forecast.html"
+        'body': f"Forecast saved to: https://{bucket}.s3.amazonaws.com/Daily_Exponential_Smoothing_Forecast.html"
     }
 
 def load_data_local():
@@ -45,8 +45,8 @@ def load_data_local():
 
 def save_output_local(fig):
 
-    # Save plot as HTML to "../Testing/Daily_ETS_Forecast.html"
-    fig.write_html("../Testing/Daily_ETS_Forecast.html")
+    # Save plot as HTML to "../Testing/Daily_Exponential_Smoothing_Forecast.html"
+    fig.write_html("../Testing/Daily_Exponential_Smoothing_Forecast.html")
 
 def ets_forecast(df):
 
