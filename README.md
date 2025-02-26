@@ -1,44 +1,39 @@
-# McBroken-Forecasting
+# [mcbroken-forecasting](https://sites.google.com/view/isaac-liu/demos/live-mcbroken-forecasts)
 
-Time Series Forecasting of McDonald's Ice Cream Machine Outages
+Live Time Series Forecasting of McDonald's Ice Cream Machine Outages
 
 Isaac Liu
 
-![McBroken Forecast Example](image/README/mcbroken_forecast_example.png)
+![1740541243644](image/README/1740541243644.png)
 
-This project implements and compares three different time series forecasting methods to predict revenue losses from McDonald's ice cream machine outages. Using data from mcbroken.com, these models predict future outages and associated revenue impacts, estimated at $625 per machine-day of downtime.
+This project implements and compares three different time series forecasting methods to predict revenue losses from McDonald's ice cream machine outages. Using data from [mcbroken.com](https://mcbroken.com/) gathered, scraped, and processed each day (if you'd like some easy-to-work-with historical data, see my repo [here](https://github.com/ijyliu/mcbroken-daily-historical)), these models predict future outages and associated revenue impacts, estimated at $625 per machine-day of downtime. Live daily forecasts are hosted on my [Google Sites page](https://sites.google.com/view/isaac-liu/demos/live-mcbroken-forecasts) along with detailed methodology writeups and insights from historical test-set analysis.
 
 The forecasting models include:
-- **Prophet**: Facebook's time series forecasting library with advanced seasonality modeling (Best performer with ~7% MAPE)
+
+- **Prophet**: Facebook's advanced time series forecasting library (Best performer with ~7% MAPE and half the MAE of a 7-day seasonal naive method)
 - **ARIMA**: Auto-Regressive Integrated Moving Average model with seasonal components
-- **ETS**: Exponential Smoothing State Space model with trend and seasonality
+- **Holt-Winters (Damped Trend)**: Exponential smoothing model with trend and seasonality
 
-Each implementation features hyperparameter optimization, outlier handling, data transformations, and confidence interval generation. The models produce interactive visualizations with detailed forecasts for the next 30 days. The repository is organized with Experimental Notebooks for development, Lambda deployment folders for each model implementation (ARIMA, ETS, Prophet), and a Testing directory for local outputs.
+Each implementation features Box-Cox transformations to standardize variance, handling of outliers and missing data with exogenous regressors or imputation, Bayesian hyperparameter optimization and/or stepwise search, and built-in or bootstrapped 95% prediction interval generation.
 
-The forecasting pipeline combines automated data collection from McBroken API with cleaning and storage in AWS S3/DynamoDB. Each method implements specialized handling of seasonality, outliers, and missing values, with techniques like Optuna used for hyperparameter optimization. The Prophet model achieved the best performance with approximately 7% Mean Absolute Percentage Error (MAPE) on out-of-sample testing, outperforming both ARIMA and ETS implementations.
-
-For local testing, activate the conda environment (`conda activate mcbroken-env`) and run the Python scripts in each model's directory. For deployment, each forecasting method is containerized and deployed as AWS Lambda functions for automated daily forecasting. Future plans include improved handling of extreme outliers, ensemble methods combining the approaches, incorporation of exogenous variables, and real-time notifications for significant expected increases.
-
-Live daily forecasts are hosted on my [Google Sites page](https://sites.google.com/view/isaac-liu) along with detailed methodology writeups and analysis.
+The data retrieval and cleaning pipeline, as well as each forecasting method and associated dependencies, were containerized and deployed as daily scheduled AWS Lambda functions. This creates interactive HTML visualizations with detailed forecasts for the next 30 days ready for retrieval from an S3 bucket.
 
 ## Technologies (not exhaustive!)
 
-- **Python**
-  - pandas, numpy, scipy
-  - pmdarima (for ARIMA modeling)
+- Python
+  - pmdarima
   - Prophet
-  - statsmodels (for ETS modeling)
-  - Optuna (hyperparameter optimization)
-  - Plotly (interactive visualizations)
-  - scikit-learn (metrics)
-  - boto3 (AWS integration)
-  
-- **Cloud & Deployment**
-  - AWS Lambda
-  - Amazon S3
-  - Amazon DynamoDB
-  - Docker containers
-  
-- **Development Environment**
-  - Conda/Mamba for environment management
-  - Jupyter notebooks for experimentation
+  - statsmodels
+  - Optuna
+  - Plotly
+  - Pandas
+  - Numpy
+  - SciPy
+  - Conda (Mamba)
+- Cloud & Deployment (AWS, Docker)
+  - Lambda
+  - S3
+  - DynamoDB
+  - Elastic Container Registry (ECR)
+  - Eventbridge
+- Bash
