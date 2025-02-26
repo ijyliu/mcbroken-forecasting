@@ -12,7 +12,7 @@ The forecasting models include:
 
 - **Prophet**: Facebook's advanced time series forecasting library (Best performer with ~7% MAPE and half the MAE of a 7-day seasonal naive method)
 - **ARIMA**: Auto-Regressive Integrated Moving Average model with seasonal components
-- **Holt-Winters (Damped Trend)**: Exponential smoothing model with trend and seasonality
+- **Exponential Smoothing**: Holt-Winters Damped Trend model with trend and seasonality
 
 Each implementation features Box-Cox transformations to standardize variance, handling of outliers and missing data with exogenous regressors or imputation, Bayesian hyperparameter optimization and/or stepwise search, and built-in or bootstrapped 95% prediction interval generation.
 
