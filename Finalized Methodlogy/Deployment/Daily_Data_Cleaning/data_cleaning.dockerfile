@@ -5,7 +5,7 @@ FROM public.ecr.aws/lambda/python:3.12
 WORKDIR /var/task
 
 # Copy Lambda function and requirements
-COPY Deployment/Daily_Data_Cleaning/Data_Cleaning_Lambda.py .
+COPY Deployment/Daily_Data_Cleaning/Daily_Data_Cleaning_Lambda.py .
 COPY Deployment/Daily_Data_Cleaning/requirements.txt .
 
 # Copy necessary source files
