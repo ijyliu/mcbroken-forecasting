@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  prophet-lambda:
+    build:
+      context: .
+      dockerfile: Deployment/Prophet/prophet.dockerfile
+    image: mcb-prophet
+  
+  arima-lambda:
+    build:
+      context: .
+      dockerfile: Deployment/ARIMA/arima.dockerfile
+    image: mcb-arima
+  
+  exponential-smoothing-lambda:
+    build:
+      context: .
+      dockerfile: Deployment/Exponential_Smoothing/exponential_smoothing.dockerfile
+    image: mcb-exponential-smoothing
+  
+  data-cleaning-lambda:
+    build:
+      context: .
+      dockerfile: Deployment/Daily_Data_Cleaning/data_cleaning.dockerfile
+    image: mcb-data-cleaning 
