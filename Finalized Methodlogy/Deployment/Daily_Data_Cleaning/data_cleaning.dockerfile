@@ -17,4 +17,4 @@ RUN python3.12 -m pip install --upgrade pip && \
     python3.12 -m pip install -r requirements.txt
 
 # Set the handler
-CMD ["Data_Cleaning_Lambda.lambda_handler"] 
+CMD ["Daily_Data_Cleaning_Lambda.lambda_handler"] 
