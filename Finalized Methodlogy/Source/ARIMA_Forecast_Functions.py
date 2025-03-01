@@ -58,9 +58,20 @@ def arima_forecast(df):
         df['Revenue Losses'], 
         X=df[outlier_cols + missing_cols], 
         seasonal=True, m=7, 
+        start_p=1,
+        start_d=1,
+        start_q=0,
+        start_P=2,
+        start_D=0,
+        start_Q=1,
+        max_p=3,
+        max_d=2,
+        max_q=3,
+        max_P=2,
+        max_D=1,
+        max_Q=2,
         suppress_warnings=True,
-        stepwise=True,
-        n_jobs=-1
+        stepwise=True
     )
     model.fit(df['Revenue Losses'], X=df[outlier_cols + missing_cols])
     
