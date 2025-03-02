@@ -11,8 +11,8 @@ This project implements and compares three different time series forecasting met
 The forecasting models include:
 
 - **Prophet**: Facebook's advanced time series forecasting library (Best performer with <5% MAPE and a third the MAE of a 7-day seasonal naive method)
-- **ARIMA**: Auto-Regressive Integrated Moving Average model with seasonal components
-- **Exponential Smoothing**: Holt-Winters Damped Trend model with trend and seasonality
+- **ARIMA**: Auto-Regressive Integrated Moving Average model with seasonal components, exogenous regressors (technically, SARIMAX)
+- **Exponential Smoothing**: Holt-Winters damped trend model with seasonality
 
 Each implementation features Box-Cox transformations to standardize variance, handling of outliers and missing data with exogenous regressors or imputation, Bayesian hyperparameter optimization and/or stepwise search, and built-in or bootstrapped 95% prediction interval generation.
 
