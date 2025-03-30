@@ -20,6 +20,10 @@ def exponential_smoothing_forecast(df):
     no_out_missing = df[(df['Outlier'] == False) & (df['Revenue Losses'].notnull())]
     no_out_missing['Revenue Losses'], lam = stats.boxcox(no_out_missing['Revenue Losses'])
     df.loc[no_out_missing.index, 'Revenue Losses'] = no_out_missing['Revenue Losses']
+    # Also use lam to create transformed version of Revenue Losses in original df
+    orig_df['Revenue Losses Transformed'] = orig_df['Revenue Losses']  # Create a new column for transformed values
+    # Do box-cox with lam on non-missing values
+    orig_df.loc[orig_df['Revenue Losses'].notnull(), 'Revenue Losses Transformed'] = stats.boxcox(orig_df.loc[orig_df['Revenue Losses'].notnull(), 'Revenue Losses'], lmbda=lam)
 
     # Set Outlier values to missing
     df.loc[df['Outlier'], 'Revenue Losses'] = None
@@ -60,14 +64,17 @@ def exponential_smoothing_forecast(df):
     forecast_values = fit_hw.forecast(steps=forecast_steps)
 
     # 1. Get Residuals from the Training Data
-    train_residuals = df['Revenue Losses'] - fit_hw.fittedvalues
+    # Do this using original df values
+    train_residuals = orig_df['Revenue Losses Transformed'] - fit_hw.fittedvalues
+    # Remove NaN
+    train_residuals = train_residuals.dropna()
 
     # 2. Bootstrapping Function
     def bootstrap_forecast(train_data, train_residuals, test_len, n_bootstraps=500):
         forecasts = []
         for _ in range(n_bootstraps):
             # 2a. Resample Residuals with Replacement
-            resampled_residuals = list(resample(train_residuals, replace=True))
+            resampled_residuals = list(resample(train_residuals, replace=True, n_samples=len(train_data)))
 
             # 2b. Create "Bootstrapped" Training Data
             bootstrapped_train = train_data + resampled_residuals
