@@ -5,6 +5,7 @@ from scipy.special import inv_boxcox
 from pmdarima import auto_arima
 import plotly.graph_objs as go
 import time
+from pmdarima.arima import StepwiseContext
 
 def arima_forecast(df):
     # Start timing
@@ -54,26 +55,27 @@ def arima_forecast(df):
 
     # Fit the ARIMA model using pmdarima's auto_arima
     print("Starting ARIMA model fitting...")
-    model = auto_arima(
-        df['Revenue Losses'], 
-        X=df[outlier_cols + missing_cols], 
-        seasonal=True, m=7, 
-        start_p=1,
-        start_d=1,
-        start_q=0,
-        start_P=2,
-        start_D=0,
-        start_Q=1,
-        max_p=3,
-        max_d=2,
-        max_q=3,
-        max_P=2,
-        max_D=1,
-        max_Q=2,
-        suppress_warnings=True,
-        stepwise=True
-    )
-    model.fit(df['Revenue Losses'], X=df[outlier_cols + missing_cols])
+    with StepwiseContext(max_dur = 60 * 10): # 10 minute timeout in seconds
+        model = auto_arima(
+            df['Revenue Losses'], 
+            X=df[outlier_cols + missing_cols], 
+            seasonal=True, m=7, 
+            start_p=1,
+            start_d=1,
+            start_q=0,
+            start_P=2,
+            start_D=0,
+            start_Q=1,
+            max_p=3,
+            max_d=2,
+            max_q=3,
+            max_P=2,
+            max_D=1,
+            max_Q=2,
+            suppress_warnings=True,
+            stepwise=True
+        )
+        model.fit(df['Revenue Losses'], X=df[outlier_cols + missing_cols])
     
     # Track model fitting time
     model_time = time.time()
